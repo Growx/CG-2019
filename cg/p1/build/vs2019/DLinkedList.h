@@ -8,7 +8,7 @@
 #ifndef __DLinkedList_h
 #define __DLinkedList_h
 
-#include <stdio>
+#include <stdio.h>
 #include "core/SharedObject.h"
 
 namespace cg

@@ -101,6 +101,7 @@ P1::hierarchyWindow()
       if (ImGui::MenuItem("Box"))
       {
         // TODO: create a new box.
+		  makeBoxMesh();
       }
       ImGui::EndMenu();
     }

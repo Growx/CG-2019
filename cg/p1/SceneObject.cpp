@@ -31,6 +31,7 @@
 // Last revision: 25/08/2018
 
 #include "SceneObject.h"
+#include "DLinkedList.h"
 
 namespace cg
 { // begin namespace cg
@@ -43,7 +44,12 @@ namespace cg
 void
 SceneObject::setParent(SceneObject* parent)
 {
-  // TODO
-}
+	// TODO
+	if (parent->parent() == nullptr) {
+		_parent = parent;
+	}
+	else
+		_parent = parent->parent();
+}	
 
 } // end namespace cg
