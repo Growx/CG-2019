@@ -35,6 +35,7 @@
 
 #include "SceneNode.h"
 #include "Transform.h"
+#include "DLinkedList.h"
 
 namespace cg
 { // begin namespace cg
@@ -60,7 +61,7 @@ public:
   {
     makeUse(&_transform);
   }
-
+	  
   /// Returns the scene which this scene object belong to.
   auto scene() const
   {
@@ -86,10 +87,12 @@ private:
   Scene* _scene;
   SceneObject* _parent;
   Transform _transform;
+  DLinkedList<SceneObject>* _object;
 
   friend class Scene;
 
 }; // SceneObject
+
 
 /// Returns the transform of a component.
 inline Transform*

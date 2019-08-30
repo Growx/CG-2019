@@ -46,7 +46,7 @@ SceneObject::setParent(SceneObject* parent)
 {
 	// TODO
 	if (parent->parent() == nullptr) {
-		_parent = parent;
+		_parent = nullptr;
 	}
 	else
 		_parent = parent->parent();

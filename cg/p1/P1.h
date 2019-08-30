@@ -4,6 +4,7 @@
 #include "Primitive.h"
 #include "Scene.h"
 #include "graphics/Application.h"
+#include "DLinkedList.h"
 
 using namespace cg;
 
@@ -32,6 +33,7 @@ private:
   Reference<SceneObject> _box;
   Reference<Primitive> _primitive;
   SceneNode* _current{};
+  DLinkedList<SceneObject>* _objects;
   Color selectedWireframeColor{255, 102, 0};
   mat4f _transform{mat4f::identity()};
 

@@ -67,6 +67,9 @@ P1::buildScene()
   _current = _scene = new Scene{"Scene 1"};
   _box = new SceneObject{"Box 1", _scene};
   _primitive = makeBoxMesh();
+  _objects = new DLinkedList<SceneObject>();
+ 
+
 }
 
 void

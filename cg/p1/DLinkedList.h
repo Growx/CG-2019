@@ -9,26 +9,28 @@
 #define __DLinkedList_h
 
 #include <stdio.h>
-#include "core/SharedObject.h"
 
 namespace cg
 {
 	template<class T>
 	class DLLNode {
+		friend class SceneObject;
 	public:
+		T info;
+		DLLNode* next, * prev;
 		DLLNode() {
 			next = prev = nullptr;
 		}
 		DLLNode(const T& el, DLLNode* n = nullptr, DLLNode* p = nullptr) {
 			info = el; next = n; prev = p;
 		}
-		T info;
-		DLLNode* next, * prev;
 	};
 
 	template<class T>
 	class DLinkedList {
+		friend class SceneObject;
 	public:
+
 		DLinkedList() {
 			head = tail = nullptr;
 		}
@@ -48,10 +50,9 @@ namespace cg
 		void addToDLLHead(const T&);
 		T deleteFromDLLHead();
 		T& firstEl();
-		T* find(const T&) const;
+
 	protected:
 		DLLNode<T>* head, * tail;
-		friend ostream& operator<<(ostream&, const DLinkedList<T>&);
 	};
 
 	template<class T>
@@ -102,28 +103,13 @@ namespace cg
 		return el;
 	}
 
-	/*template<class T>
-	ostream& operator<<(ostream& out, const DLinkedList<T>& dll) {
-		for (DLLNode<T>* tmp = dll.head; tmp != nullptr; tmp = tmp->next)
-			out << tmp->info << ' ';
-		return out;
-	}*/
-
-	template<class T>
-	T* DLinkedList<T>::find(const T& el) const {
-		for (DLLNode<T>* tmp = head; tmp != nullptr && !(tmp->info == el); 
-			tmp = tmp->next);
-		if (tmp == nullptr)
-			return nullptr;
-		else return &tmp->info;
-	}
-
 	template<class T>
 	void DLinkedList<T>::addInMiddle(const T& el) {
 		if (head != nullptr) {
 			if (head->next != nullptr) {
 				int i = 1;
-				for (DLLNode<T>* tmp = head; tmp->next != nullptr; i++, tmp = tmp->next);
+				DLLNode<T>* tmp;
+				for (tmp = head; tmp->next != nullptr; i++, tmp = tmp->next);
 				for (tmp = head, i = i / 2; i; i--, tmp = tmp->next);
 				tmp->prev = tmp->prev->next = new DLLNode<T>(el, tmp, tmp->prev);
 			}
