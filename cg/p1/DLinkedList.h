@@ -2,7 +2,7 @@
 // ========
 // Class definition for doubly linked list component.
 //
-// Author(s): Jean Carvalho Ortiz
+// Author(s): Jean Carvalho Ortiz e Lucas Bassani
 // Last revision: 20/08/2019
 
 #ifndef __DLinkedList_h

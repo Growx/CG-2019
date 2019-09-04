@@ -47,6 +47,8 @@ namespace cg
 class Primitive: public Component
 {
 public:
+	Color color{ };
+
   Primitive(GLMeshArray* mesh):
     Component{"Primitive"},
     _mesh{mesh}

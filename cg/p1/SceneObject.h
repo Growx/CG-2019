@@ -87,7 +87,6 @@ private:
   Scene* _scene;
   SceneObject* _parent;
   Transform _transform;
-  DLinkedList<SceneObject>* _object;
 
   friend class Scene;
 

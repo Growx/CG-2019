@@ -1,74 +1,11 @@
 #include "P1.h"
 
-namespace cg
-{ // begin namespace cg
-
-inline Primitive*
-makeBoxMesh()
-{
-  const vec4f p1{-0.5, -0.5, -0.5, 1};
-  const vec4f p2{+0.5, -0.5, -0.5, 1};
-  const vec4f p3{+0.5, +0.5, -0.5, 1};
-  const vec4f p4{-0.5, +0.5, -0.5, 1};
-  const vec4f p5{-0.5, -0.5, +0.5, 1};
-  const vec4f p6{+0.5, -0.5, +0.5, 1};
-  const vec4f p7{+0.5, +0.5, +0.5, 1};
-  const vec4f p8{-0.5, +0.5, +0.5, 1};
-  const Color c1{Color::black};
-  const Color c2{Color::red};
-  const Color c3{Color::yellow};
-  const Color c4{Color::green};
-  const Color c5{Color::blue};
-  const Color c6{Color::magenta};
-  const Color c7{Color::cyan};
-  const Color c8{Color::white};
-
-  // Box vertices
-  static const vec4f v[]
-  {
-    p1, p5, p8, p4, // x = -0.5
-    p2, p3, p7, p6, // x = +0.5
-    p1, p2, p6, p5, // y = -0.5
-    p4, p8, p7, p3, // y = +0.5
-    p1, p4, p3, p2, // z = -0.5
-    p5, p6, p7, p8  // z = +0.5
-  };
-
-  // Box vertex colors
-  static const Color c[]
-  {
-    c1, c5, c8, c4, // x = -0.5
-    c2, c3, c7, c6, // x = +0.5
-    c1, c2, c6, c5, // y = -0.5
-    c4, c8, c7, c3, // y = +0.5
-    c1, c4, c3, c2, // z = -0.5
-    c5, c6, c7, c8  // z = +0.5
-  };
-
-  // Box triangles
-  static const GLMeshArray::Triangle t[]
-  {
-    { 0,  1,  2}, { 2,  3,  0},
-    { 4,  5,  7}, { 5,  6,  7},
-    { 8,  9, 11}, { 9, 10, 11},
-    {12, 13, 14}, {14, 15, 12},
-    {16, 17, 19}, {17, 18, 19},
-    {20, 21, 22}, {22, 23, 20}
-  };
-
-  return new Primitive{new GLMeshArray{24, {v, 0}, {c, 1}, 12, t}};
-}
-
-} // end namespace cg
-
 inline void
 P1::buildScene()
 {
   _current = _scene = new Scene{"Scene 1"};
   _box = new SceneObject{"Box 1", _scene};
   _primitive = makeBoxMesh();
-  _objects = new DLinkedList<SceneObject>();
- 
 
 }
 
@@ -104,6 +41,7 @@ P1::hierarchyWindow()
       if (ImGui::MenuItem("Box"))
       {
         // TODO: create a new box.
+		  //ObjectNode(_scene);
 		  makeBoxMesh();
       }
       ImGui::EndMenu();
@@ -196,6 +134,11 @@ P1::sceneGui()
 }
 
 inline void
+P1::inspectPrimitive(Primitive& primitive)
+{
+	ImGui::ColorEdit3("Mesh Color", (float*)& primitive.color);
+}
+inline void
 P1::sceneObjectGui()
 {
   auto object = (SceneObject*)_current;
@@ -214,6 +157,7 @@ P1::sceneObjectGui()
   if (ImGui::CollapsingHeader(_primitive->typeName()))
   {
     // TODO: show primitive properties.
+	  inspectPrimitive(*_primitive);
   }
 }
 
@@ -244,8 +188,8 @@ P1::gui()
 {
   hierarchyWindow();
   inspectorWindow();
-  /*
-  static bool demo = true;
+  
+ /* static bool demo = true;
   ImGui::ShowDemoWindow(&demo);
   */
 }
@@ -257,16 +201,18 @@ P1::render()
   if (!_box->visible)
     return;
   _program.setUniformMat4("transform", _transform);
-
   auto m = _primitive->mesh();
 
   m->bind();
+
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
   if (_current != _box)
     return;
+ 
   m->setVertexColor(selectedWireframeColor);  
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
-  m->useVertexColors();
+  m->setVertexColor(_primitive->color);
+
 }
