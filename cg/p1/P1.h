@@ -31,9 +31,12 @@ public:
 	  _current = scene;
 	  _box = new SceneObject("Box", scene);
 	  _primitive = makeBoxMesh();
+Object();
 	  //ObjectList.addToDLLHead(*_box);
+}DLinkedList<SceneObject> ObjectList;
+  DLinkedList<SceneObject> Object(DLLNode* node){
+       ObjectList.addToDLLTail(node);
 }
-  DLinkedList<SceneObject> ObjectList;
 
 private:
   GLSL::Program _program;
