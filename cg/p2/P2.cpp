@@ -64,6 +64,8 @@ namespace ImGui
 inline void
 P2::hierarchyWindow()
 {
+	//auto o;
+
   ImGui::Begin("Hierarchy");
   if (ImGui::Button("Create###object"))
     ImGui::OpenPopup("CreateObjectPopup");
@@ -77,11 +79,18 @@ P2::hierarchyWindow()
     {
       if (ImGui::MenuItem("Box"))
       {
-        // TODO: create a new box.
-      }
+		  auto o = new SceneObject{ "Box", *_scene };
+		  o->addComponent(makePrimitive(_defaultMeshes.find("Box")));
+		  o->setParent(_scene->root());
+		  _objects.push_back(o);
+	  }
       if (ImGui::MenuItem("Sphere"))
       {
         // TODO: create a new sphere.
+		  auto o = new SceneObject{ "Sphere", *_scene };
+		  o->addComponent(makePrimitive(_defaultMeshes.find("Sphere")));
+		  o->setParent(_scene->root());
+		  _objects.push_back(o);
       }
       ImGui::EndMenu();
     }
