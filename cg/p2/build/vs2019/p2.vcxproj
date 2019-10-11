@@ -36,6 +36,11 @@
     <ClInclude Include="..\..\SceneObject.h" />
     <ClInclude Include="..\..\Transform.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\common\build\vs2019\cg.vcxproj">
+      <Project>{4780518d-aff4-44a9-bf4b-4329d56ff751}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{3FD1D91D-19DF-4C23-AD3C-02A6ECF35FE3}</ProjectGuid>
