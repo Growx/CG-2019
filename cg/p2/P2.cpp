@@ -612,6 +612,7 @@ inline void
 P2::drawCamera(Camera& camera)
 {
 	// TODO
+
 }
 
 inline void
