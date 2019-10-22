@@ -89,14 +89,32 @@ P3::hierarchyWindow()
       if (ImGui::MenuItem("Directional Light"))
       {
         // TODO: create a new directional light.
+		  auto o = new SceneObject{ "Directional Light", *_scene };
+		  //o->addComponent(new Light);
+		  o->setParent(_scene->root());
+		  _objects.push_back(o);
       }
       if (ImGui::MenuItem("Point Light"))
       {
         // TODO: create a new pontual light.
+		  auto o = new SceneObject{ "Pontual Light", *_scene };
+		  //auto l = new Light();
+		  //o->addComponent(l);
+		  o->setParent(_scene->root());
+		  //l->setType(Light::Point);
+		  //l->setFallOff(Light::Linear);
+		  _objects.push_back(o);
       }
       if (ImGui::MenuItem("Spotlight"))
       {
         // TODO: create a new spotlight.
+		  auto o = new SceneObject{ "Spot Light", *_scene };
+		  //auto l = new Light();
+		  //o->addComponent(l);
+		  o->setParent(_scene->root());
+		  //l->setType(Light::Point);
+		  //l->setExpoent(Light::ExpoLinear);
+		  _objects.push_back(o);
       }
       ImGui::EndMenu();
     }
@@ -358,6 +376,9 @@ P3::addComponentButton(SceneObject& object)
     if (ImGui::MenuItem("Light"))
     {
       // TODO
+		if ((Light*)_current) {
+			object.addComponent(new Light());
+		}
     }
     if (ImGui::MenuItem("Camera"))
     {
@@ -392,6 +413,9 @@ P3::sceneObjectGui()
     if (!notDelete)
     {
       // TODO: delete primitive
+		if ((Primitive*)_current) {
+			object->release(_current);
+		}
     }
     else if (open)
       inspectPrimitive(*p);
@@ -404,6 +428,9 @@ P3::sceneObjectGui()
     if (!notDelete)
     {
       // TODO: delete light
+		if ((Light*)_current) {
+			object->release(_current);
+		}
     }
     else if (open)
       inspectLight(*l);
@@ -416,6 +443,9 @@ P3::sceneObjectGui()
     if (!notDelete)
     {
       // TODO: delete camera
+		if ((Camera*)_current) {
+			object->release(_current);
+		}
     }
     else if (open)
     {

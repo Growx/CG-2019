@@ -54,11 +54,28 @@ public:
     Spot
   };
 
+  enum FallOff
+  {
+	  Off,
+	  Linear,
+	  Quadratic
+  };
+
+  enum Expoent
+  {
+	  ExpoOff,
+	  ExpoLinear,
+	  ExpoQuadratic
+  };
+
   Color color{Color::white};
 
   Light():
     Component{"Light"},
-    _type{Directional}
+    _type{Directional},
+	_falloff{Off},
+	_expoent{ExpoOff}
+
   {
     // do nothing
   }
@@ -73,8 +90,20 @@ public:
     _type = type;
   }
 
+  void setFallOff(FallOff falloff)
+  {
+	  _falloff = falloff;
+  }
+
+  void setExpoent(Expoent expoent)
+  {
+	  _expoent = expoent;
+  }
+
 private:
   Type _type;
+  FallOff _falloff;
+  Expoent _expoent;
 
 }; // Light
 
