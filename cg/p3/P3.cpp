@@ -974,7 +974,7 @@ P3::render()
 
 	  if (_moveFlags)
 	  {
-		  const auto delta = _camera->distance() * CAMERA_RES;
+		  const auto delta = _editor->orbitDistance() * CAMERA_RES;
 		  auto d = vec3f::null();
 
 		  if (_moveFlags.isSet(MoveBits::Forward))
@@ -989,7 +989,7 @@ P3::render()
 			  d.y += delta;
 		  if (_moveFlags.isSet(MoveBits::Down))
 			  d.y -= delta;
-		  _camera->translate(d);
+		  _editor->pan(d);
 	  }
 
   }

@@ -270,6 +270,7 @@ public:
   HOST DEVICE
   vec4 operator -() const
   {
+
     return vec4{-x, -y, -z, -w};
   }
 
