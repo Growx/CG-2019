@@ -45,8 +45,8 @@ private:
     Editor = 0,
     Renderer = 1
   };
-  Reference<cg::SceneObject> _root;
-  cg::SceneObject* _currentObj{};
+  Reference<SceneObject> _root;
+  SceneObject* _currentObj{};
 
   enum class MoveBits
   {

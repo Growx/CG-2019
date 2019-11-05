@@ -26,55 +26,59 @@ P3::buildScene()
   _editor = new SceneEditor{*_scene};
   _editor->setDefaultView((float)width() / (float)height());
   // **Begin initialization of temporary attributes
-  // It should be replaced by your scene initialization
-  cg::SceneObject* box = new cg::SceneObject("Box_0", *_scene);
+   //It should be replaced by your scene initialization
+  SceneObject* box = new SceneObject("Box_0", *_scene);
   box->addComponent(new Transform());
-  box->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+  box->addComponent((Primitive*)makePrimitive(_defaultMeshes.find("Box")));
   box->setParent(_root);
 
-  box = new cg::SceneObject("Box_1", *_scene);
+  box = new SceneObject("Box_1", *_scene);
   box->addComponent(new Transform());
-  box->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+  box->addComponent((Primitive*)makePrimitive(_defaultMeshes.find("Box")));
   box->setParent(_root);
-  box->transform()->setPosition(vec3f(4, 0, 0));
+  //box->transform()->setPosition(vec3f(4, 0, 0));
 
-  cg::SceneObject* l1 = new cg::SceneObject("Gray_directional_light", *_scene);
+  box = new SceneObject("Camera_0", *_scene);
+  box->addComponent(new Camera());
+  box->setParent(_root);
+
+  SceneObject* l1 = new SceneObject("Gray_directional_light", *_scene);
   l1->addComponent(new Transform());
-  l1->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+  l1->addComponent((Primitive*)makePrimitive(_defaultMeshes.find("Box")));
   l1->addComponent(new Light());
   l1->setParent(_root);
-  l1->transform()->setPosition(vec3f(0, 3, 0));
-  l1->transform()->setLocalScale(vec3f(0.1, 0.1, 0.1));
+  /*l1->transform()->setPosition(vec3f(0, 3, 0));
+  l1->transform()->setLocalScale(vec3f(0.1, 0.1, 0.1));*/
   l1->light()->setCor(Color::gray);
   l1->light()->setType(Light::Type::Directional);
 
-  cg::SceneObject* l2 = new cg::SceneObject("Magenta_point_light", *_scene);
+  SceneObject* l2 = new SceneObject("Magenta_point_light", *_scene);
   l2->addComponent(new Transform());
-  l2->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+  l2->addComponent((Primitive*)makePrimitive(_defaultMeshes.find("Box")));
   l2->addComponent(new Light());
   l2->setParent(_root);
-  l2->transform()->setPosition(vec3f(2, 1, -1));
-  l2->transform()->setLocalScale(0.1);
+  //l2->transform()->setPosition(vec3f(2, 1, -1));
+  //l2->transform()->setLocalScale(0.1);
   l2->light()->setCor(Color::magenta);
   l2->light()->setType(Light::Type::Point);
 
-  cg::SceneObject* l3 = new cg::SceneObject("Cyan_spot_light", *_scene);
+  SceneObject* l3 = new SceneObject("Cyan_spot_light", *_scene);
   l3->addComponent(new Transform());
-  l3->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+  l3->addComponent((Primitive*)makePrimitive(_defaultMeshes.find("Box")));
   l3->addComponent(new Light());
   l3->setParent(_root);
-  l3->transform()->setPosition(vec3f(-1, 2, 1));
-  l3->transform()->setLocalScale(0.1);
+  //l3->transform()->setPosition(vec3f(-1, 2, 1));
+  //l3->transform()->setLocalScale(0.1);
   l3->light()->setCor(Color::cyan);
   l3->light()->setType(Light::Type::Spot);
 
-  cg::SceneObject* l4 = new cg::SceneObject("Green_spot_light", *_scene);
+  SceneObject* l4 = new SceneObject("Green_spot_light", *_scene);
   l4->addComponent(new Transform());
-  l4->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+  l4->addComponent((Primitive*)makePrimitive(_defaultMeshes.find("Box")));
   l4->addComponent(new Light());
   l4->setParent(_root);
-  l4->transform()->setPosition(vec3f(4, 3, 0));
-  l4->transform()->setLocalScale(0.1);
+  //l4->transform()->setPosition(vec3f(4, 3, 0));
+  //l4->transform()->setLocalScale(0.1);
   l4->light()->setCor(Color::green);
   l4->light()->setType(Light::Type::Spot);
   // **End initialization of temporary attributes
@@ -115,7 +119,7 @@ P3::hierarchyWindow()
     {
       // TODO: create an empty object.
 		std::string s = "Object_" + std::to_string(j);
-		cg::SceneObject* obj = new cg::SceneObject(s.c_str(), *_scene);
+		SceneObject* obj = new SceneObject(s.c_str(), *_scene);
 		obj->addComponent(new Transform());
 		obj->setParent(_currentObj);
 		printf("%s\n", _currentObj->getChild(_currentObj->childCount() - 1)->name());
@@ -127,9 +131,9 @@ P3::hierarchyWindow()
       {
         // TODO: create a new box.
 		  std::string s = "Box_" + std::to_string(i);
-		  cg::SceneObject* obj = new cg::SceneObject(s.c_str(), *_scene);
+		  SceneObject* obj = new SceneObject(s.c_str(), *_scene);
 		  obj->addComponent(new Transform());
-		  obj->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+		  obj->addComponent((Primitive*)makePrimitive(_defaultMeshes.find("Box")));
 		  obj->setParent(_currentObj);
 		  printf("%s\n", _currentObj->getChild(_currentObj->childCount() - 1)->name());
 		  ++i;
@@ -148,7 +152,7 @@ P3::hierarchyWindow()
         // TODO: create a new directional light.
 
 		  auto o = new SceneObject{ "Directional Light", *_scene };
-		  cg::SceneObject* obj = new cg::SceneObject((s + "_Dir").c_str(), *_scene);
+		  SceneObject* obj = new SceneObject((s + "_Dir").c_str(), *_scene);
 		  obj->addComponent(new Transform());
 		  obj->addComponent(new Light());
 		  obj->setParent(_currentObj);
@@ -158,7 +162,7 @@ P3::hierarchyWindow()
       if (ImGui::MenuItem("Point Light"))
       {
         // TODO: create a new pontual light.
-		  cg::SceneObject* obj = new cg::SceneObject((s + "_Point").c_str(), *_scene);
+		  SceneObject* obj = new SceneObject((s + "_Point").c_str(), *_scene);
 		  obj->addComponent(new Transform());
 		  obj->addComponent(new Light());
 		  obj->setParent(_currentObj);
@@ -167,7 +171,7 @@ P3::hierarchyWindow()
       if (ImGui::MenuItem("Spotlight"))
       {
         // TODO: create a new spotlight.
-		  cg::SceneObject* obj = new cg::SceneObject((s + "_Spot").c_str(), *_scene);
+		  SceneObject* obj = new SceneObject((s + "_Spot").c_str(), *_scene);
 		  obj->addComponent(new Transform());
 		  obj->addComponent(new Light());
 		  obj->setParent(_currentObj);
@@ -430,7 +434,7 @@ P3::addComponentButton(SceneObject& object)
     if (ImGui::MenuItem("Primitive"))
     {
       // TODO
-		_currentObj->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
+		_currentObj->addComponent((Primitive*)makePrimitive(_defaultMeshes.find("None")));
     }
     if (ImGui::MenuItem("Light"))
     {

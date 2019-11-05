@@ -168,6 +168,7 @@ Transform::update()
   _lossyScale = scale(_rotation, _matrix);
   _inverseMatrix = inverseLocalMatrix() * p->_inverseMatrix;
   // TODO: update the transform of all scene object's children.
+  changed = true;
   SceneObject* obj = &(*sceneObject());
   for (std::vector<Reference<SceneObject>>::iterator it = obj->childBegin(); it != obj->childEnd(); ++it)
   {
@@ -190,6 +191,7 @@ Transform::parentChanged()
   _lossyScale = scale(_rotation, _matrix);
   _inverseMatrix = inverseLocalMatrix() * p->_inverseMatrix;
   // TODO: update the transform of all scene object's children.
+  changed = true;
   SceneObject* obj = &(*sceneObject());
   for (std::vector<Reference<SceneObject>>::iterator it = obj->childBegin(); it != obj->childEnd(); ++it)
   {
