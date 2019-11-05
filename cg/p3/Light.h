@@ -54,30 +54,17 @@ public:
     Spot
   };
 
-  enum FallOff
-  {
-	  Off,
-	  Linear,
-	  Quadratic
-  };
-
-  enum Expoent
-  {
-	  ExpoOff,
-	  ExpoLinear,
-	  ExpoQuadratic
-  };
-
   Color color{Color::white};
 
   Light():
     Component{"Light"},
-    _type{Directional},
-	_falloff{Off},
-	_expoent{ExpoOff}
-
+    _type{Point}
   {
     // do nothing
+	  _angulo_externo = 30;
+	  _angulo_interno = 20;
+	  _cor = Color::white;
+	  _fator = 0;
   }
 
   auto type() const
@@ -90,21 +77,51 @@ public:
     _type = type;
   }
 
-  void setFallOff(FallOff falloff)
+  float angulo_interno()
   {
-	  _falloff = falloff;
+	  return _angulo_interno;
   }
 
-  void setExpoent(Expoent expoent)
+  void setAngulo_interno(float value)
   {
-	  _expoent = expoent;
+	  {}
+	  _angulo_interno = value;
   }
 
+  float angulo_externo()
+  {
+	  return _angulo_externo;
+  }
+
+  void setAngulo_externo(float value)
+  {
+	  _angulo_externo = value;
+  }
+  Color cor()
+  {
+	  return _cor;
+  }
+
+  void setCor(Color value)
+  {
+	  _cor = value;
+  }
+
+  int fator()
+  {
+	  return _fator;
+  }
+
+  void setFator(int value)
+  {
+	  _fator = value;
+  }
 private:
   Type _type;
-  FallOff _falloff;
-  Expoent _expoent;
-
+  float _angulo_externo;
+  float _angulo_interno;
+  Color _cor;
+  int _fator;
 }; // Light
 
 } // end namespace cg

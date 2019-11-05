@@ -64,17 +64,31 @@ public:
 
   ~Camera() override;
 
+  vec3f position() const;
+  vec3f eulerAngles() const;
+  quatf rotation() const;
+  vec3f focalPoint() const;
+  float distance() const;
   float viewAngle() const;
   float height() const;
   float aspectRatio() const;
   float clippingPlanes(float& F, float& B) const;
   ProjectionType projectionType() const;
 
+  void setPosition(const vec3f& value);
+  void setEulerAngles(const vec3f& value);
+  void setRotation(const quatf& value);
   void setViewAngle(float viewAngle);
   void setHeight(float height);
   void setAspectRatio(float aspect);
   void setClippingPlanes(float F, float B);
   void setProjectionType(ProjectionType projectionType);
+  void setDistance(float value);
+
+  void rotateYX(float ay, float ax, bool orbit = false);
+  void zoom(float zoom);
+  //void translate(float dx, float dy, float dz);
+  void translate(const vec3f& d);
 
   mat4f worldToCameraMatrix() const;
   mat4f cameraToWorldMatrix() const;
@@ -90,6 +104,11 @@ public:
   static void setCurrent(Camera* camera);
 
 private:
+  vec3f _position;
+  vec3f _eulerAngles;
+  quatf _rotation;
+  vec3f _focalPoint;
+  float _distance;
   float _viewAngle;
   float _height;
   float _aspectRatio;
@@ -106,6 +125,36 @@ private:
   void updateProjection();
 
 }; // Camera
+
+inline vec3f
+Camera::position() const
+{
+	return _position;
+}
+
+inline vec3f
+Camera::eulerAngles() const
+{
+	return _eulerAngles;
+}
+
+inline quatf
+Camera::rotation() const
+{
+	return _rotation;
+}
+
+inline vec3f
+Camera::focalPoint() const
+{
+	return _focalPoint;
+}
+
+inline float
+Camera::distance() const
+{
+	return _distance;
+}
 
 inline float
 Camera::viewAngle() const

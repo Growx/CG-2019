@@ -35,6 +35,10 @@
 
 #include "SceneNode.h"
 #include "Transform.h"
+#include "Primitive.h"
+#include "Light.h"
+#include <vector>
+#include <algorithm>
 
 namespace cg
 { // begin namespace cg
@@ -76,6 +80,45 @@ public:
   /// Sets the parent of this scene object.
   void setParent(SceneObject* parent);
 
+  void parentSet(SceneObject* parent);
+  /// Add child to list of childs 
+  void addChild(SceneObject* child);
+
+  void removeChild(SceneObject* child);
+
+  void addComponent(Component* comp);
+
+  int childCount();
+
+  std::vector<Reference<SceneObject>>::iterator childBegin()
+  {
+	  return _child.begin();
+  }
+
+  std::vector<Reference<SceneObject>>::iterator childEnd()
+  {
+	  return _child.end();
+  }
+
+  std::vector<Reference<Component>>::iterator componentBegin()
+  {
+	  return _components.begin();
+  }
+
+  std::vector<Reference<Component>>::iterator componentEnd()
+  {
+	  return _components.end();
+  }
+
+  int componentCount();
+
+  Component* getComponent(int k);
+
+  void att_components(SceneObject* x);
+
+  SceneObject* getChild(int k);
+
+
   /// Returns the transform of this scene object.
   auto transform() const
   {
@@ -87,20 +130,19 @@ public:
     return &_transform;
   }
 
-  void addComponent(Component* component)
-  {
-    component->_sceneObject = this;
-    // TODO
-    _component = Component::makeUse(component); // temporary
-  }
-
   // **Begin temporary methods
   // They should be replace by your child and component iterators
-  Component* component()
+
+  Primitive* primitive()
   {
-    return _component;
+	  return _primitive;
   }
   // **End temporary methods
+
+  Light* light()
+  {
+	  return _light;
+  }
 
 private:
   Scene* _scene;
@@ -109,9 +151,16 @@ private:
   // **Begin temporary attributes
   // They should be replace by your child and component collections
   Reference<Component> _component;
+  Primitive* _primitive{};
+  Light* _light{};
   // **End temporary attributes
 
   friend class Scene;
+
+  //declarada a lista de filhos
+  std::vector<Reference<SceneObject>> _child;
+  //declara a lista de componentes
+  std::vector<Reference<Component>> _components;
 
 }; // SceneObject
 

@@ -1,5 +1,7 @@
 #include "geometry/MeshSweeper.h"
 #include "P3.h"
+#include <string>
+#include <stack>
 
 MeshMap P3::_defaultMeshes;
 
@@ -25,31 +27,66 @@ P3::buildScene()
   _editor->setDefaultView((float)width() / (float)height());
   // **Begin initialization of temporary attributes
   // It should be replaced by your scene initialization
-  {
-    auto o = new SceneObject{"Main Camera", *_scene};
-    auto camera = new Camera;
+  cg::SceneObject* box = new cg::SceneObject("Box_0", *_scene);
+  box->addComponent(new Transform());
+  box->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+  box->setParent(_root);
 
-    o->addComponent(camera);
-    o->setParent(_scene->root());
-    _objects.push_back(o);
-    o = new SceneObject{"Directional Light", *_scene};
-    o->addComponent(new Light);
-    o->setParent(_scene->root());
-    _objects.push_back(o);
-    o = new SceneObject{"Box 1", *_scene};
-    o->addComponent(makePrimitive(_defaultMeshes.find("Box")));
-    o->setParent(_scene->root());
-    _objects.push_back(o);
-    Camera::setCurrent(camera);
-  }
+  box = new cg::SceneObject("Box_1", *_scene);
+  box->addComponent(new Transform());
+  box->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+  box->setParent(_root);
+  box->transform()->setPosition(vec3f(4, 0, 0));
+
+  cg::SceneObject* l1 = new cg::SceneObject("Gray_directional_light", *_scene);
+  l1->addComponent(new Transform());
+  l1->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+  l1->addComponent(new Light());
+  l1->setParent(_root);
+  l1->transform()->setPosition(vec3f(0, 3, 0));
+  l1->transform()->setLocalScale(vec3f(0.1, 0.1, 0.1));
+  l1->light()->setCor(Color::gray);
+  l1->light()->setType(Light::Type::Directional);
+
+  cg::SceneObject* l2 = new cg::SceneObject("Magenta_point_light", *_scene);
+  l2->addComponent(new Transform());
+  l2->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+  l2->addComponent(new Light());
+  l2->setParent(_root);
+  l2->transform()->setPosition(vec3f(2, 1, -1));
+  l2->transform()->setLocalScale(0.1);
+  l2->light()->setCor(Color::magenta);
+  l2->light()->setType(Light::Type::Point);
+
+  cg::SceneObject* l3 = new cg::SceneObject("Cyan_spot_light", *_scene);
+  l3->addComponent(new Transform());
+  l3->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+  l3->addComponent(new Light());
+  l3->setParent(_root);
+  l3->transform()->setPosition(vec3f(-1, 2, 1));
+  l3->transform()->setLocalScale(0.1);
+  l3->light()->setCor(Color::cyan);
+  l3->light()->setType(Light::Type::Spot);
+
+  cg::SceneObject* l4 = new cg::SceneObject("Green_spot_light", *_scene);
+  l4->addComponent(new Transform());
+  l4->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+  l4->addComponent(new Light());
+  l4->setParent(_root);
+  l4->transform()->setPosition(vec3f(4, 3, 0));
+  l4->transform()->setLocalScale(0.1);
+  l4->light()->setCor(Color::green);
+  l4->light()->setType(Light::Type::Spot);
   // **End initialization of temporary attributes
 }
 
 void
 P3::initialize()
 {
-  Application::loadShaders(_program, "shaders/p3.vs", "shaders/p3.fs");
-  Assets::initialize();
+	Application::loadShaders(_program[0], "shaders/p3-none.vs", "shaders/p3-none.fs");
+	Application::loadShaders(_program[1], "shaders/p3-flat.vs", "shaders/p3-flat.fs");
+	Application::loadShaders(_program[2], "shaders/p3.vs", "shaders/p3.fs");
+	Application::loadShaders(_program[3], "shaders/p3-smooth.vs", "shaders/p3-smooth.fs");  Assets::initialize();
   buildDefaultMeshes();
   buildScene();
   _renderer = new GLRenderer{*_scene};
@@ -57,12 +94,18 @@ P3::initialize()
   glEnable(GL_POLYGON_OFFSET_FILL);
   glPolygonOffset(1.0f, 1.0f);
   glEnable(GL_LINE_SMOOTH);
-  _program.use();
+  _program[0].use();
+  _b = Tonalizacao::None;
+
 }
 
 inline void
 P3::hierarchyWindow()
 {
+	static int j = 0;
+	static int i = 0;
+	static int k = 0;
+
   ImGui::Begin("Hierarchy");
   if (ImGui::Button("Create###object"))
     ImGui::OpenPopup("CreateObjectPopup");
@@ -71,12 +114,25 @@ P3::hierarchyWindow()
     if (ImGui::MenuItem("Empty Object"))
     {
       // TODO: create an empty object.
+		std::string s = "Object_" + std::to_string(j);
+		cg::SceneObject* obj = new cg::SceneObject(s.c_str(), *_scene);
+		obj->addComponent(new Transform());
+		obj->setParent(_currentObj);
+		printf("%s\n", _currentObj->getChild(_currentObj->childCount() - 1)->name());
+		++j;
     }
     if (ImGui::BeginMenu("3D Object"))
     {
       if (ImGui::MenuItem("Box"))
       {
         // TODO: create a new box.
+		  std::string s = "Box_" + std::to_string(i);
+		  cg::SceneObject* obj = new cg::SceneObject(s.c_str(), *_scene);
+		  obj->addComponent(new Transform());
+		  obj->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+		  obj->setParent(_currentObj);
+		  printf("%s\n", _currentObj->getChild(_currentObj->childCount() - 1)->name());
+		  ++i;
       }
       if (ImGui::MenuItem("Sphere"))
       {
@@ -86,35 +142,37 @@ P3::hierarchyWindow()
     }
     if (ImGui::BeginMenu("Light"))
     {
+		std::string s = "Light_" + std::to_string(k);
       if (ImGui::MenuItem("Directional Light"))
       {
         // TODO: create a new directional light.
+
 		  auto o = new SceneObject{ "Directional Light", *_scene };
-		  //o->addComponent(new Light);
-		  o->setParent(_scene->root());
-		  _objects.push_back(o);
+		  cg::SceneObject* obj = new cg::SceneObject((s + "_Dir").c_str(), *_scene);
+		  obj->addComponent(new Transform());
+		  obj->addComponent(new Light());
+		  obj->setParent(_currentObj);
+		  obj->light()->setType(Light::Type::Directional);
+		  ++k;
       }
       if (ImGui::MenuItem("Point Light"))
       {
         // TODO: create a new pontual light.
-		  auto o = new SceneObject{ "Pontual Light", *_scene };
-		  //auto l = new Light();
-		  //o->addComponent(l);
-		  o->setParent(_scene->root());
-		  //l->setType(Light::Point);
-		  //l->setFallOff(Light::Linear);
-		  _objects.push_back(o);
+		  cg::SceneObject* obj = new cg::SceneObject((s + "_Point").c_str(), *_scene);
+		  obj->addComponent(new Transform());
+		  obj->addComponent(new Light());
+		  obj->setParent(_currentObj);
+		  ++k;
       }
       if (ImGui::MenuItem("Spotlight"))
       {
         // TODO: create a new spotlight.
-		  auto o = new SceneObject{ "Spot Light", *_scene };
-		  //auto l = new Light();
-		  //o->addComponent(l);
-		  o->setParent(_scene->root());
-		  //l->setType(Light::Point);
-		  //l->setExpoent(Light::ExpoLinear);
-		  _objects.push_back(o);
+		  cg::SceneObject* obj = new cg::SceneObject((s + "_Spot").c_str(), *_scene);
+		  obj->addComponent(new Transform());
+		  obj->addComponent(new Light());
+		  obj->setParent(_currentObj);
+		  obj->light()->setType(Light::Type::Spot);
+		  ++k;
       }
       ImGui::EndMenu();
     }
@@ -372,17 +430,18 @@ P3::addComponentButton(SceneObject& object)
     if (ImGui::MenuItem("Primitive"))
     {
       // TODO
+		_currentObj->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
     }
     if (ImGui::MenuItem("Light"))
     {
       // TODO
-		if ((Light*)_current) {
-			object.addComponent(new Light());
-		}
+		_currentObj->addComponent(new Light());
     }
     if (ImGui::MenuItem("Camera"))
     {
       // TODO
+		_currentObj->addComponent(new Camera());
+
     }
     ImGui::EndPopup();
   }
@@ -403,59 +462,59 @@ P3::sceneObjectGui()
     ImGui::TransformEdit(object->transform());
   // **Begin inspection of temporary components
   // It should be replaced by your component inspection
-  auto component = object->component();
+  //auto component = object->componentEnd;
 
-  if (auto p = dynamic_cast<Primitive*>(component))
-  {
-    auto notDelete{true};
-    auto open = ImGui::CollapsingHeader(p->typeName(), &notDelete);
+  //if (auto p = dynamic_cast<Primitive*>(component))
+  //{
+  //  auto notDelete{true};
+  //  auto open = ImGui::CollapsingHeader(p->typeName(), &notDelete);
 
-    if (!notDelete)
-    {
-      // TODO: delete primitive
-		if ((Primitive*)_current) {
-			object->release(_current);
-		}
-    }
-    else if (open)
-      inspectPrimitive(*p);
-  }
-  else if (auto l = dynamic_cast<Light*>(component))
-  {
-    auto notDelete{true};
-    auto open = ImGui::CollapsingHeader(l->typeName(), &notDelete);
+  //  if (!notDelete)
+  //  {
+  //    // TODO: delete primitive
+		//if ((Primitive*)_current) {
+		//	object->release(_current);
+		//}
+  //  }
+  //  else if (open)
+  //    inspectPrimitive(*p);
+  //}
+  //else if (auto l = dynamic_cast<Light*>(component))
+  //{
+  //  auto notDelete{true};
+  //  auto open = ImGui::CollapsingHeader(l->typeName(), &notDelete);
 
-    if (!notDelete)
-    {
-      // TODO: delete light
-		if ((Light*)_current) {
-			object->release(_current);
-		}
-    }
-    else if (open)
-      inspectLight(*l);
-  }
-  else if (auto c = dynamic_cast<Camera*>(component))
-  {
-    auto notDelete{true};
-    auto open = ImGui::CollapsingHeader(c->typeName(), &notDelete);
+  //  if (!notDelete)
+  //  {
+  //    // TODO: delete light
+		//if ((Light*)_current) {
+		//	object->release(_current);
+		//}
+  //  }
+  //  else if (open)
+  //    inspectLight(*l);
+  //}
+  //else if (auto c = dynamic_cast<Camera*>(component))
+  //{
+  //  auto notDelete{true};
+  //  auto open = ImGui::CollapsingHeader(c->typeName(), &notDelete);
 
-    if (!notDelete)
-    {
-      // TODO: delete camera
-		if ((Camera*)_current) {
-			object->release(_current);
-		}
-    }
-    else if (open)
-    {
-      auto isCurrent = c == Camera::current();
+  //  if (!notDelete)
+  //  {
+  //    // TODO: delete camera
+		//if ((Camera*)_current) {
+		//	object->release(_current);
+		//}
+  //  }
+  //  else if (open)
+  //  {
+  //    auto isCurrent = c == Camera::current();
 
-      ImGui::Checkbox("Current", &isCurrent);
-      Camera::setCurrent(isCurrent ? c : nullptr);
-      inspectCamera(*c);
-    }
-  }
+  //    ImGui::Checkbox("Current", &isCurrent);
+  //    Camera::setCurrent(isCurrent ? c : nullptr);
+  //    inspectCamera(*c);
+  //  }
+  //}
   // **End inspection of temporary components
 }
 
@@ -504,6 +563,30 @@ P3::editorViewGui()
 
     ImGui::Combo("Shading Mode", &sm, "None\0Flat\0Gouraud\0\0");
     // TODO
+	if (sm == 0)
+	{
+		if (_b != Tonalizacao::None)
+			_program[0].use();
+		_b = Tonalizacao::None;
+	}
+	if (sm == 1)
+	{
+		if (_b != Tonalizacao::Flat)
+			_program[1].use();
+		_b = Tonalizacao::Flat;
+	}
+	if (sm == 2)
+	{
+		if (_b != Tonalizacao::Gouraud)
+			_program[2].use();
+		_b = Tonalizacao::Gouraud;
+	}
+	if (sm == 3)
+	{
+		if (_b != Tonalizacao::Phong)
+			_program[3].use();
+		_b = Tonalizacao::Phong;
+	}
 
     static Color edgeColor;
     static bool showEdges;
@@ -686,16 +769,16 @@ P3::drawPrimitive(Primitive& primitive)
   auto t = primitive.transform();
   auto normalMatrix = mat3f{t->worldToLocalMatrix()}.transposed();
 
-  _program.setUniformMat4("transform", t->localToWorldMatrix());
-  _program.setUniformMat3("normalMatrix", normalMatrix);
-  _program.setUniformVec4("color", primitive.material.diffuse);
-  _program.setUniform("flatMode", (int)0);
+  _program[0].setUniformMat4("transform", t->localToWorldMatrix());
+  _program[0].setUniformMat3("normalMatrix", normalMatrix);
+  _program[0].setUniformVec4("color", primitive.material.diffuse);
+  _program[0].setUniform("flatMode", (int)0);
   m->bind();
   drawMesh(m, GL_FILL);
   if (primitive.sceneObject() != _current)
     return;
-  _program.setUniformVec4("color", _selectedWireframeColor);
-  _program.setUniform("flatMode", (int)1);
+  _program[0].setUniformVec4("color", _selectedWireframeColor);
+  _program[0].setUniform("flatMode", (int)1);
   drawMesh(m, GL_LINE);
 }
 
@@ -719,9 +802,18 @@ P3::renderScene()
     _renderer->setCamera(camera);
     _renderer->setImageSize(width(), height());
     _renderer->render();
-    _program.use();
+    _program[0].use();
   }
 }
+
+
+inline void
+renderMesh(GLMesh* mesh, GLuint mode)
+{
+	glPolygonMode(GL_FRONT_AND_BACK, mode);
+	glDrawElements(GL_TRIANGLES, mesh->vertexCount(), GL_UNSIGNED_INT, 0);
+}
+
 
 constexpr auto CAMERA_RES = 0.01f;
 constexpr auto ZOOM_SCALE = 1.01f;
@@ -757,29 +849,149 @@ P3::render()
 
   // **Begin rendering of temporary scene objects
   // It should be replaced by your rendering code (and moved to scene editor?)
-  auto ec = _editor->camera();
-  const auto& p = ec->transform()->position();
-  auto vp = vpMatrix(ec);
-
-  _program.setUniformMat4("vpMatrix", vp);
-  _program.setUniformVec4("ambientLight", _scene->ambientLight);
-  _program.setUniformVec3("lightPosition", p);
-  for (const auto& o : _objects)
   {
-    if (!o->visible)
-      continue;
+	  const auto& bc = _scene->backgroundColor;
+	  glClearColor(bc.r, bc.g, bc.b, 1.0f);
+	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    auto component = o->component();
+	  std::stack <std::pair<Reference<SceneObject>, int>> q;
+	  std::pair<Reference<SceneObject>, int> x;
+	  int quantidade_luz = 0;
 
-    if (auto p = dynamic_cast<Primitive*>(component))
-      drawPrimitive(*p);
-    else if (auto c = dynamic_cast<Camera*>(component))
-      drawCamera(*c);
-    if (o == _current)
-    {
-      auto t = o->transform();
-      _editor->drawAxes(t->position(), mat3f{t->rotation()});
-    }
+	  x = std::make_pair(_root, 0);
+	  Reference<SceneObject> f = x.first;
+	  for (int i = 0; i < f->childCount(); ++i)
+		  q.push(std::make_pair(f->getChild(i), x.second + 1));
+	  while (!q.empty())
+	  {
+		  x = q.top();
+		  f = x.first;
+		  //f->update();
+		  q.pop();
+		  if (!f->visible)
+		  {
+			  for (int i = 0; i < f->childCount(); ++i)
+				  q.push(std::make_pair(f->getChild(i), x.second + 1));
+			  continue;
+		  }
+
+		  if (f->light() != nullptr && _b != Tonalizacao::None)
+		  {
+			  if (f->light()->type() == Light::Type::Directional && quantidade_luz < 8)
+			  {
+				  _program[_b].setUniformVec4((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].cor")).c_str(), f->light()->cor());
+				  _program[_b].setUniformVec3((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].direcao")).c_str(), f->light()->transform()->rotation() * vec3f { 0, -1.0f, 0 });
+
+				  _program[_b].setUniformVec3((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].posicao")).c_str(), vec3f(1, 1, 1));
+				  _program[_b].setUniform((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].fator")).c_str(), (int)0);
+				  _program[_b].setUniform((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].angulo_interno")).c_str(), (float)0);
+				  _program[_b].setUniform((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].angulo_externo")).c_str(), (float)0);
+				  _program[_b].setUniform((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].tipo")).c_str(), (int)Light::Type::Directional);
+			  }
+			  else if (f->light()->type() == Light::Type::Point && quantidade_luz < 8)
+			  {
+				  _program[_b].setUniformVec4((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].cor")).c_str(), f->light()->cor());
+				  _program[_b].setUniform((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].fator")).c_str(), (int)f->light()->fator());
+				  _program[_b].setUniformVec3((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].posicao")).c_str(), f->transform()->position());
+
+				  _program[_b].setUniformVec3((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].direcao")).c_str(), vec3f(1, 1, 1));
+				  _program[_b].setUniform((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].angulo_interno")).c_str(), (float)0);
+				  _program[_b].setUniform((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].angulo_externo")).c_str(), (float)0);
+				  _program[_b].setUniform((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].tipo")).c_str(), (int)Light::Type::Point);
+			  }
+			  else if (f->light()->type() == Light::Type::Spot && quantidade_luz < 8)
+			  {
+				  _program[_b].setUniformVec4((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].cor")).c_str(), f->light()->cor());
+				  _program[_b].setUniform((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].fator")).c_str(), (int)f->light()->fator());
+				  _program[_b].setUniformVec3((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].posicao")).c_str(), f->transform()->position());
+				  _program[_b].setUniformVec3((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].direcao")).c_str(), f->light()->transform()->rotation() * vec3f { 0, -1.0f, 0 });
+				  _program[_b].setUniform((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].angulo_interno")).c_str(), (float)cos(M_PI * f->light()->angulo_interno() / 180));
+				  _program[_b].setUniform((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].angulo_externo")).c_str(), (float)cos(M_PI * f->light()->angulo_externo() / 180));
+				  _program[_b].setUniform((std::string("luz[") + std::to_string(quantidade_luz) + std::string("].tipo")).c_str(), (int)Light::Type::Spot);
+			  }
+			  quantidade_luz++;
+		  }
+
+		  if (f->primitive() == nullptr)
+		  {
+			  for (int i = 0; i < f->childCount(); ++i)
+				  q.push(std::make_pair(f->getChild(i), x.second + 1));
+			  continue;
+		  }
+		  auto m = glMesh(f->primitive()->mesh());
+
+		  for (int i = 0; i < f->childCount(); ++i)
+			  q.push(std::make_pair(f->getChild(i), x.second + 1));
+
+		  if (nullptr == m)
+			  continue;
+
+		  auto t = f->transform();
+		  auto normalMatrix = mat3f{ t->worldToLocalMatrix() }.transposed();
+
+		  _program[_b].setUniformMat4("transform", t->localToWorldMatrix());
+
+		  if (_currentObj == f)
+		  {
+			  m->bind();
+			  if (_b != Tonalizacao::None)
+			  {
+				  _program[_b].setUniformVec4("material.diffuse", _selectedWireframeColor);
+				  _program[_b].setUniform("flatMode", (int)1);
+			  }
+			  else
+				  _program[_b].setUniformVec4("color", _selectedWireframeColor);
+			  renderMesh(m, GL_LINE);
+		  }
+
+		  if (_b == Tonalizacao::Gouraud || _b == Tonalizacao::Phong)
+			  _program[_b].setUniformMat3("normalMatrix", normalMatrix);
+		  if (_b != Tonalizacao::None)
+		  {
+			  _program[_b].setUniformVec4("material.ambient", f->primitive()->material.ambient);
+			  _program[_b].setUniformVec4("material.diffuse", f->primitive()->material.diffuse);
+			  _program[_b].setUniformVec4("material.spot", f->primitive()->material.spot);
+			  _program[_b].setUniform("material.shine", (float)f->primitive()->material.shine);
+			  _program[_b].setUniform("flatMode", (int)0);
+		  }
+		  else
+			  _program[_b].setUniformVec4("color", _corArestas);
+		  m->bind();
+		  if (_b != Tonalizacao::None)
+			  renderMesh(m, GL_FILL);
+		  else
+			  renderMesh(m, GL_LINE);
+
+
+	  }
+	  if (_b != Tonalizacao::None)
+	  {
+		  _program[_b].setUniform("quantidade_luz", (int)quantidade_luz);
+		  _program[_b].setUniformVec3("view_position", _camera->position());
+		  _program[_b].setUniformVec4("ambientLight", _scene->ambientLight);
+	  }
+	  _program[_b].setUniformMat4("vpMatrix", vpMatrix(_camera));
+
+	  if (_moveFlags)
+	  {
+		  const auto delta = _camera->distance() * CAMERA_RES;
+		  auto d = vec3f::null();
+
+		  if (_moveFlags.isSet(MoveBits::Forward))
+			  d.z -= delta;
+		  if (_moveFlags.isSet(MoveBits::Back))
+			  d.z += delta;
+		  if (_moveFlags.isSet(MoveBits::Left))
+			  d.x -= delta;
+		  if (_moveFlags.isSet(MoveBits::Right))
+			  d.x += delta;
+		  if (_moveFlags.isSet(MoveBits::Up))
+			  d.y += delta;
+		  if (_moveFlags.isSet(MoveBits::Down))
+			  d.y -= delta;
+		  _camera->translate(d);
+	  }
+
   }
   // **End rendering of temporary scene objects
 }

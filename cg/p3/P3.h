@@ -14,10 +14,18 @@ using namespace cg;
 
 class P3: public GLWindow
 {
+	enum Tonalizacao
+	{
+		None,
+		Flat,
+		Gouraud,
+		Phong
+	};
+
 public:
   P3(int width, int height):
     GLWindow{"cg2018 - P3", width, height},
-    _program{"P3"}
+	_program{ "None", "Flat", "Gouraud", "Phong" }
   {
     // do nothing
   }
@@ -37,6 +45,8 @@ private:
     Editor = 0,
     Renderer = 1
   };
+  Reference<cg::SceneObject> _root;
+  cg::SceneObject* _currentObj{};
 
   enum class MoveBits
   {
@@ -54,7 +64,7 @@ private:
     Pan = 2
   };
 
-  GLSL::Program _program;
+  GLSL::Program _program[4];
   Reference<Scene> _scene;
   Reference<SceneEditor> _editor;
   Reference<GLRenderer> _renderer;
@@ -62,9 +72,15 @@ private:
   // Those are just to show some geometry
   // They should be replaced by your scene hierarchy
   std::vector<Reference<SceneObject>> _objects;
+  Reference<SceneObject> _box;
+  Reference<Primitive> _primitive;
+  Reference<Light> _light;
+  Reference<Camera> _camera;
+  Tonalizacao _b;
   // **End temporary attributes
   SceneNode* _current{};
   Color _selectedWireframeColor{255, 102, 0};
+  Color _corArestas{ 0, 133, 133 };
   Flags<MoveBits> _moveFlags{};
   Flags<DragBits> _dragFlags{};
   int _pivotX;

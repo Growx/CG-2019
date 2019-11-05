@@ -61,6 +61,98 @@ Camera::~Camera()
 }
 
 void
+Camera::setPosition(const vec3f& value)
+{
+	mat4f::vec3 direcao;
+	direcao = vec3f((_focalPoint.x - _position.x) / _distance, (_focalPoint.y - _position.y) / _distance, (_focalPoint.z - _position.z) / _distance);
+	_position = value;
+	_focalPoint = _distance * direcao + _position;
+	updateView();
+}
+
+void
+Camera::setEulerAngles(const vec3f& value)
+{
+	_eulerAngles = value;
+	quatf eixoX(_eulerAngles.x, vec3f(0, -1, 0));
+	quatf eixoY(_eulerAngles.y, vec3f(-1, 0, 0));
+	quatf eixoZ(_eulerAngles.z, vec3f(0, 0, 1));
+	setRotation(eixoX * eixoY * eixoZ);
+	vec3f direcao;
+	mat3f r = (mat3f)_rotation;
+	direcao = vec3f(-r(0, 2), -r(1, 2), -r(2, 2));
+	direcao.normalize();
+
+	_focalPoint = _distance * direcao + _position;
+	updateView();
+}
+
+void
+Camera::setRotation(const quatf& value)
+{
+	_rotation = value;
+}
+
+void
+Camera::setDistance(float value)
+{
+	_distance = value;
+	mat4f::vec3 direcao;
+	direcao = vec3f((_focalPoint.x - _position.x) / _distance, (_focalPoint.y - _position.y) / _distance, (_focalPoint.z - _position.z) / _distance);
+	_focalPoint = value * direcao + _position;
+	_distance = value;
+	updateView();
+}
+
+void
+Camera::rotateYX(float ay, float ax, bool orbit)
+{
+	_eulerAngles.x = _eulerAngles.x + ay;
+	_eulerAngles.y = _eulerAngles.y + ax;
+	quatf eixoX(_eulerAngles.x, vec3f(0, -1, 0));
+	quatf eixoY(_eulerAngles.y, vec3f(-1, 0, 0));
+	quatf eixoZ(_eulerAngles.z, vec3f(0, 0, 1));
+	setRotation(eixoX * eixoY * eixoZ);
+	vec3f direcao;
+	mat3f r = (mat3f)_rotation;
+	direcao = vec3f(-r(0, 2), -r(1, 2), -r(2, 2));
+	direcao.normalize();
+	if (orbit == true)
+		_position = _focalPoint - _distance * direcao;
+	else
+		_focalPoint = _distance * direcao + _position;
+	updateView();
+}
+
+void
+Camera::zoom(float zoom)
+{
+	if (_projectionType == Parallel)
+		_height /= zoom;
+	else
+		_viewAngle /= zoom;
+	updateProjection();
+}
+
+//void
+//Camera::translate(float dx, float dy, float dz)
+//{
+//	mat4f::vec3 ceu(0.0f, 1.0f, 0.0f), direita, up;
+//	vec3f direcao;
+//	mat3f r = (mat3f)_rotation;
+//	direcao = vec3f(-r(0, 2), -r(1, 2), -r(2, 2));
+//	direcao.normalize();
+//	direita = (direcao.cross(ceu)).versor();
+//	up = (direita.cross(direcao)).versor();
+//
+//	_position += -direcao * dz + direita * dx + up * dy;
+//	_focalPoint += -direcao * dz + direita * dx + up * dy;
+//
+//	updateView();
+//}
+
+
+void
 Camera::setViewAngle(float value)
 {
   if (!math::isEqual(_viewAngle, value))
