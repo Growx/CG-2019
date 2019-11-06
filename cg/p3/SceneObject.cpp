@@ -40,104 +40,104 @@ namespace cg
 //
 // SceneObject implementation
 // ===========
-void
-SceneObject::setParent(SceneObject* parent)
-{
-	cg::SceneObject* obj = new cg::SceneObject(name(), *_scene);
-	obj->parentSet(parent);
-	parent->addChild(obj);
-	auto novo = parent->getChild(parent->childCount() - 1);
-	SceneObject* aux = _parent;
-	_parent = parent;
-	_transform.parentChanged();
-	_parent = aux;
-	for (auto it = _components.begin(); it != _components.end(); it++)
-		novo->addComponent(&(**it));
-	novo->att_components(this);
-}
-void SceneObject::parentSet(SceneObject* parent)
-{
-	_parent = parent;
-}
-
-void
-SceneObject::att_components(SceneObject* x)
-{
-	_child.clear();
-	for (std::vector<Reference<SceneObject>>::iterator it = x->childBegin(); it != x->childEnd(); ++it)
+	void
+		SceneObject::setParent(SceneObject* parent)
 	{
-		this->addChild(&(**it));
-		SceneObject* aux = this->getChild(this->childCount() - 1);
-		aux->parentSet(this);
-		for (auto component = aux->componentBegin(); component != aux->componentEnd(); component++)
-			(*component)->_sceneObject = aux;
-		aux->att_components(&(**it));
+		// TODO
+		cg::SceneObject* obj = new cg::SceneObject(name(), *_scene);
+		obj->parentSet(parent);
+		parent->addChild(obj);
+		auto novo = parent->getChild(parent->childCount() - 1);
+		SceneObject* aux = _parent;
+		_parent = parent;
+		_transform->parentChanged();
+		_parent = aux;
+		for (auto it = _components.begin(); it != _components.end(); it++)
+			novo->addComponent(&(**it));
+		novo->att_components(this);
 	}
-}
-
-void
-SceneObject::addChild(SceneObject* child)
-{
-	_child.push_back(child);
-}
-
-void
-SceneObject::removeChild(SceneObject* child)
-{
-	auto size = _child.size();
-	unsigned index = -1;
-	for (unsigned i = 0; i < size; ++i)
+	void SceneObject::parentSet(SceneObject* parent)
 	{
-		if ((SceneObject*)_child[i] == child)
+		_parent = parent;
+	}
+
+	void
+		SceneObject::att_components(SceneObject* x)
+	{
+		_child.clear();
+		for (std::vector<Reference<SceneObject>>::iterator it = x->childBegin(); it != x->childEnd(); ++it)
 		{
-			index = i;
-			break;
+			this->addChild(&(**it));
+			SceneObject* aux = this->getChild(this->childCount() - 1);
+			aux->parentSet(this);
+			for (auto component = aux->componentBegin(); component != aux->componentEnd(); component++)
+				(*component)->_sceneObject = aux;
+			aux->att_components(&(**it));
 		}
 	}
-	if (index != -1)
-		_child.erase(_child.begin() + index);
-}
 
-void
-SceneObject::addComponent(Component* comp)
-{
-	bool flag = true;
-	for (auto it = _components.begin(); it != _components.end(); it++)
-		if (strcmp((*it)->typeName(), comp->typeName()) == 0)
-			flag = false;
-	if (flag)
+	void
+		SceneObject::addChild(SceneObject* child)
 	{
-		comp->_sceneObject = this;
-		_components.push_back(comp);
-		/*if (strcmp("Transform", comp->typeName()) == 0)
-			_transform = (Transform*) & (**--_components.end());*/
-		/*else*/ if (strcmp("Primitive", comp->typeName()) == 0)
-			_primitive = (Primitive*) & (**--_components.end());
-		else if (strcmp("Light", comp->typeName()) == 0)
-			_light = (Light*) & (**--_components.end());
+		_child.push_back(child);
 	}
-}
 
-SceneObject* SceneObject::getChild(int k)
-{
-	if (k >= _child.size())
-		printf("Error: Object has no child numbered %d", k);
-	return _child.at(k);
-}
+	void
+		SceneObject::removeChild(SceneObject* child)
+	{
+		auto size = _child.size();
+		unsigned index = -1;
+		for (unsigned i = 0; i < size; ++i)
+		{
+			if ((SceneObject*)_child[i] == child)
+			{
+				index = i;
+				break;
+			}
+		}
+		if (index != -1)
+			_child.erase(_child.begin() + index);
+	}
 
-int SceneObject::childCount()
-{
-	return _child.size();
-}
+	void
+		SceneObject::addComponent(Component* comp)
+	{
+		bool flag = true;
+		for (auto it = _components.begin(); it != _components.end(); it++)
+			if (strcmp((*it)->typeName(), comp->typeName()) == 0)
+				flag = false;
+		if (flag)
+		{
+			comp->_sceneObject = this;
+			_components.push_back(comp);
+			if (strcmp("Transform", comp->typeName()) == 0)
+				_transform = (Transform*) & (**--_components.end());
+			else if (strcmp("Primitive", comp->typeName()) == 0)
+				_primitive = (Primitive*) & (**--_components.end());
+			else if (strcmp("Light", comp->typeName()) == 0)
+				_light = (Light*) & (**--_components.end());
+		}
+	}
 
-int SceneObject::componentCount()
-{
-	return _components.size();
-}
+	SceneObject* SceneObject::getChild(int k)
+	{
+		if (k >= _child.size())
+			printf("Error: Object has no child numbered %d", k);
+		return _child.at(k);
+	}
 
-Component* SceneObject::getComponent(int k)
-{
-	return _components[k];
-}
-// end namespace cg
+	int SceneObject::childCount()
+	{
+		return _child.size();
+	}
+
+	int SceneObject::componentCount()
+	{
+		return _components.size();
+	}
+
+	Component* SceneObject::getComponent(int k)
+	{
+		return _components[k];
+	}
 } // end namespace cg

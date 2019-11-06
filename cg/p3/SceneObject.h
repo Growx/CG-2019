@@ -44,140 +44,137 @@ namespace cg
 { // begin namespace cg
 
 // Forward definition
-class Scene;
+	class Scene;
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // SceneObject: scene object class
 // ===========
-class SceneObject: public SceneNode
+class SceneObject : public SceneNode
 {
 public:
-  bool visible{true};
+	bool visible{ true };
 
-  /// Constructs an empty scene object.
-  SceneObject(const char* name, Scene& scene):
-    SceneNode{name},
-    _scene{&scene},
-    _parent{}
-  {
-    addComponent(makeUse(&_transform));    
-  }
+	/// Constructs an empty scene object.
+	SceneObject(const char* name, Scene& scene) :
+		SceneNode{ name },
+		_scene{ &scene },
+		_parent{}
+	{
+		//addComponent(makeUse(&_transform));
+	}
 
-  /// Returns the scene which this scene object belong to.
-  auto scene() const
-  {
-    return _scene;
-  }
+	/// Returns the scene which this scene object belong to.
+	auto scene() const
+	{
+		return _scene;
+	}
 
-  /// Returns the parent of this scene object.
-  auto parent() const
-  {
-    return _parent;
-  }
+	/// Returns the parent of this scene object.
+	auto parent() const
+	{
+		return _parent;
+	}
 
-  /// Sets the parent of this scene object.
-  void setParent(SceneObject* parent);
+	/// Sets the parent of this scene object.
+	void setParent(SceneObject* parent);
 
-  void parentSet(SceneObject* parent);
-  /// Add child to list of childs 
-  void addChild(SceneObject* child);
+	void parentSet(SceneObject* parent);
+	/// Add child to list of childs 
+	void addChild(SceneObject* child);
 
-  void removeChild(SceneObject* child);
+	void removeChild(SceneObject* child);
 
-  void addComponent(Component* comp);
+	int childCount();
 
-  int childCount();
+	/// Returns the transform of this scene object.
+	auto transform() const
+	{
+		return _transform;
+	}
 
-  std::vector<Reference<SceneObject>>::iterator childBegin()
-  {
-	  return _child.begin();
-  }
+	auto transform()
+	{
+		return _transform;
+	}
 
-  std::vector<Reference<SceneObject>>::iterator childEnd()
-  {
-	  return _child.end();
-  }
+	Primitive* primitive()
+	{
+		return _primitive;
+	}
 
-  std::vector<Reference<Component>>::iterator componentBegin()
-  {
-	  return _components.begin();
-  }
+	Light* light()
+	{
+		return _light;
+	}
 
-  std::vector<Reference<Component>>::iterator componentEnd()
-  {
-	  return _components.end();
-  }
-
-  int componentCount();
-
-  Component* getComponent(int k);
-
-  void att_components(SceneObject* x);
-
-  SceneObject* getChild(int k);
+	void addComponent(Component* comp);
 
 
-  /// Returns the transform of this scene object.
-  auto transform() const
-  {
-    return &_transform;
-  }
+	// **Begin temporary methods
+	// They should be replace by your child and component iterators
+	std::vector<Reference<SceneObject>>::iterator childBegin()
+	{
+		return _child.begin();
+	}
 
-  auto transform()
-  {
-    return &_transform;
-  }
+	std::vector<Reference<SceneObject>>::iterator childEnd()
+	{
+		return _child.end();
+	}
 
-  // **Begin temporary methods
-  // They should be replace by your child and component iterators
+	std::vector<Reference<Component>>::iterator componentBegin()
+	{
+		return _components.begin();
+	}
 
-  Primitive* primitive()
-  {
-	  return _primitive;
-  }
-  // **End temporary methods
+	std::vector<Reference<Component>>::iterator componentEnd()
+	{
+		return _components.end();
+	}
 
-  Light* light()
-  {
-	  return _light;
-  }
+	int componentCount();
+
+	Component* getComponent(int k);
+
+	void att_components(SceneObject* x);
+
+	SceneObject* getChild(int k);
+	// **End temporary methods
 
 private:
-  Scene* _scene;
-  SceneObject* _parent;
-  Transform _transform;
-  // **Begin temporary attributes
-  // They should be replace by your child and component collections
-  Reference<Component> _component;
-  Primitive* _primitive{};
-  Light* _light{};
-  // **End temporary attributes
+	Scene* _scene;
+	SceneObject* _parent;
+	Transform* _transform{};
+	Primitive* _primitive{};
+	Light* _light{};
+	// **Begin temporary attributes
+	// They should be replace by your child and component collections
+	//declarada a lista de filhos
+	std::vector<Reference<SceneObject>> _child;
+	//declara a lista de componentes
+	std::vector<Reference<Component>> _components;
+	// **End temporary attributes
 
-  friend class Scene;
-
-  //declarada a lista de filhos
-  std::vector<Reference<SceneObject>> _child;
-  //declara a lista de componentes
-  std::vector<Reference<Component>> _components;
+	friend class Scene;
 
 }; // SceneObject
 
 /// Returns the transform of a component.
 inline Transform*
-Component::transform() // declared in Component.h
+	Component::transform() // declared in Component.h
 {
-  return sceneObject()->transform();
+	return sceneObject()->transform();
 }
 
 /// Returns the parent of a transform.
 inline Transform*
-Transform::parent() const // declared in Transform.h
+	Transform::parent() const // declared in Transform.h
 {
-  if (auto p = sceneObject()->parent())
-    return p->transform();
-   return nullptr;
+	if (auto p = sceneObject()->parent())
+		return p->transform();
+	return nullptr;
 }
 
 } // end namespace cg
